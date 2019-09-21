@@ -72,22 +72,15 @@ func (b *Builder) limitWriteTo(w Writer) error {
 			}
 
 			var final *Builder
-			selects := b.selects
-			b.selects = append(append([]string{fmt.Sprintf("TOP %d %v", limit.limitN+limit.offset, b.selects[0])},
-				b.selects[1:]...), "ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS RN")
-
-			var wb *Builder
-			if b.optype == unionType {
-				wb = Dialect(b.dialect).Select("*", "ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS RN").
-					From(b, "at")
-			} else {
-				wb = b
-			}
+			// selects := b.selects
+			b.selects = append(append([]string{fmt.Sprintf("TOP %d %v", limit.limitN, b.selects[0])},
+				b.selects[1:]...))
 
 			if limit.offset == 0 {
-				final = Dialect(b.dialect).Select(selects...).From(wb, "at")
+				final = b
 			} else {
-				final = Dialect(b.dialect).Select(selects...).From(wb, "at").Where(Gt{"at.RN": limit.offset})
+				fmt.Fprintf(ow, " OFFSET %v ROW FETCH NEXT %v ROWS ONLY", limit.offset, limit.limitN)
+				return nil
 			}
 
 			return final.WriteTo(ow)

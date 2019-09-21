@@ -21,7 +21,7 @@ func (b *Builder) selectWriteTo(w Writer) error {
 
 	// perform limit before writing to writer when b.dialect between ORACLE and MSSQL
 	// this avoid a duplicate writing problem in simple limit query
-	if b.limitation != nil && (b.dialect == ORACLE || b.dialect == MSSQL) {
+	if b.limitation != nil && (b.dialect == ORACLE || (b.dialect == MSSQL && b.limitation.offset == 0)) {
 		return b.limitWriteTo(w)
 	}
 
