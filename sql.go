@@ -21,7 +21,7 @@ func condToSQL(cond Cond) (string, []interface{}, error) {
 	if err := cond.WriteTo(w); err != nil {
 		return "", nil, err
 	}
-	return w.writer.String(), w.args, nil
+	return w.String(), w.args, nil
 }
 
 func condToBoundSQL(cond Cond) (string, error) {
@@ -33,7 +33,7 @@ func condToBoundSQL(cond Cond) (string, error) {
 	if err := cond.WriteTo(w); err != nil {
 		return "", err
 	}
-	return ConvertToBoundSQL(w.writer.String(), w.args)
+	return ConvertToBoundSQL(w.String(), w.args)
 }
 
 // ToSQL convert a builder or conditions to SQL and args
@@ -75,6 +75,7 @@ func noSQLQuoteNeeded(a interface{}) bool {
 	}
 
 	t := reflect.TypeOf(a)
+
 	switch t.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return true
